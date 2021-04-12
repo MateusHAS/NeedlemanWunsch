@@ -5,7 +5,7 @@ package needleman.wunsch.master;
  * @author mateus
  */
 
-public final class NeedlemanWunsch {
+public class NeedlemanWunsch {
 
     private final int MATCH; // caracteres iguais
     private final int MISMATCH; // caracteres diferentes
@@ -193,7 +193,6 @@ public final class NeedlemanWunsch {
     public void printStrandInfo() {
         System.out.println(stringAlinhada[0]);         
         System.out.println(stringAlinhada[1]);
-        System.out.println(" \n");
         System.out.println("A pontuação para este alinhamento é: " + score);
     }
     

@@ -3,6 +3,7 @@ package needleman.wunsch.master;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.Arrays;
+import java.util.List;
 
 import com.sun.xml.internal.ws.util.StringUtils;
 
@@ -16,15 +17,16 @@ public class NeedlemanWunschMain {
 
     
     public static void main(String[] args) throws IOException {
-    	
-    	
+
     	FileLoader fileLoader = new FileLoader();
     	    	
     	String fileName1 = "seq1_SARS-COV-2";
     	String fileName2= "seq2_MERS";
 		String firstSeq;
 		String secondSeq;
-		Integer limit = 500;
+		Integer limit = 1000;
+		boolean isParallel = false;
+		int numThreads = 20;
 		
 		if(args.length > 0) {
 			try {
@@ -44,19 +46,27 @@ public class NeedlemanWunschMain {
     		secondSeq = fileLoader.getSequence(fileName2);
     	}
     			
+		if(isParallel){
 
-    	long currentTimeStart = System.nanoTime();
-        NeedlemanWunsch alinhamento = new NeedlemanWunsch(firstSeq, secondSeq, 4, -2, -1, true);
-        long currentTimeEnd = System.nanoTime();
-        
-        BigDecimal finalTime = BigDecimal.valueOf((currentTimeEnd - currentTimeStart) / 1000000.);
-        System.out.println("tempo de execução (ms): " + finalTime);
-        alinhamento.printStrandInfo();         
-        
+			long currentTimeStart = System.nanoTime();
+			NeedlemanWunsch alinhamento = new NeedlemanWunsch(firstSeq, secondSeq, 4, -2, -1, true);
+			long currentTimeEnd = System.nanoTime();
+
+			BigDecimal finalTime = BigDecimal.valueOf((currentTimeEnd - currentTimeStart) / 1000000.);
+			System.out.println("tempo de execução (ms): " + finalTime);
+			alinhamento.printStrandInfo();
+
 //        alinhamento.printMatrizScore();
-        System.out.println(" \n");
-                
+			System.out.println(" \n");
 //        System.out.println(Arrays.deepToString(alinhamento.getSolution()));
+
+		} else {
+			ParallelService parallelService = new ParallelService(firstSeq, secondSeq, numThreads);
+			List<NeedlemanWunschThread> initializedThreads = parallelService.initialize();
+
+			initializedThreads.stream().forEach(NeedlemanWunschThread::run);
+		}
+
 
     }
     
