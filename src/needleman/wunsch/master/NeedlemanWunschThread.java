@@ -16,7 +16,7 @@ public class NeedlemanWunschThread implements Runnable {
 	public void run() {
 		NeedlemanWunsch alinhamento = new NeedlemanWunsch(seq1, seq2 );
 		System.out.println("Thread: " + this.name );
-//		alinhamento.printStrandInfo();
+		alinhamento.printStrandInfo();
 
 	}
 }

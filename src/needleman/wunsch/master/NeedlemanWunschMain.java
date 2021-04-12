@@ -25,8 +25,8 @@ public class NeedlemanWunschMain {
 		String firstSeq;
 		String secondSeq;
 		Integer limit = 1000;
-		boolean isParallel = false;
-		int numThreads = 20;
+		boolean isParallel = true;
+		int numThreads = 5;
 		
 		if(args.length > 0) {
 			try {
@@ -46,7 +46,7 @@ public class NeedlemanWunschMain {
     		secondSeq = fileLoader.getSequence(fileName2);
     	}
     			
-		if(isParallel){
+		if(!isParallel){
 
 			long currentTimeStart = System.nanoTime();
 			NeedlemanWunsch alinhamento = new NeedlemanWunsch(firstSeq, secondSeq, 4, -2, -1, true);
