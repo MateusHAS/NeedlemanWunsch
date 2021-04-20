@@ -13,11 +13,11 @@ public class NeedlemanWunsch {
     private String sequencia1;
     private String sequencia2;        
     private boolean allowMismatch;
-    private int[][] solution;
+    private Integer[][] solution;
     private int score;
     private String[] stringAlinhada;
 
-    public NeedlemanWunsch(int MATCH, int MISMATCH, int GAP, String sequencia1, String sequencia2, boolean allowMismatch, int[][] solution, int score, String[] stringAlinhada) {
+    public NeedlemanWunsch(int MATCH, int MISMATCH, int GAP, String sequencia1, String sequencia2, boolean allowMismatch, Integer[][] solution, int score, String[] stringAlinhada) {
         this.MATCH = MATCH;
         this.MISMATCH = MISMATCH;
         this.GAP = GAP;
@@ -48,9 +48,9 @@ public class NeedlemanWunsch {
         
     }
 
-    public int[][] findSolution() {
+    public Integer[][] findSolution() {
         
-        int[][] solution = new int[sequencia1.length()+1][sequencia2.length()+1];
+        Integer[][] solution = new Integer[sequencia1.length()+1][sequencia2.length()+1];
         solution[0][0] = 0;
 
         for (int i = 1; i < sequencia2.length()+1; i++) {
@@ -219,7 +219,7 @@ public class NeedlemanWunsch {
         System.out.println(" \n" + s.toString());
     }
 
-    public int[][] getSolution() {
+    public Integer[][] getSolution() {
         return solution;
     }
 
