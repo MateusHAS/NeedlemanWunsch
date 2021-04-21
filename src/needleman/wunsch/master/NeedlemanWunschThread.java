@@ -1,22 +1,62 @@
 package needleman.wunsch.master;
 
-public class NeedlemanWunschThread implements Runnable {
-	private String name;
-	private String seq1;
-	private String seq2;
+import java.util.List;
 
-	public NeedlemanWunschThread(String name, String seq1, String seq2) {
+public class NeedlemanWunschThread extends Thread {
 
-		this.name = name;
-		this.seq1 = seq1;
-		this.seq2 = seq2;
-	}
+    private final String name;
 
-	@Override
-	public void run() {
-		NeedlemanWunsch alinhamento = new NeedlemanWunsch(seq1, seq2 );
-		System.out.println("Thread: " + this.name );
-		alinhamento.printStrandInfo();
+    private final Data data;
 
-	}
+    private List<Integer> indexes;
+
+    public NeedlemanWunschThread(String name, Data data) {
+
+        this.name = name;
+        this.data = data;
+    }
+
+    public void setI(List<Integer> indexes) {
+
+        this.indexes = indexes;
+    }
+
+    @Override
+    public void run() {
+
+        for (Integer i : indexes) {
+
+//            System.out.println(Thread.currentThread().getName() + " - index: " + i);
+
+            for (int j = 1; j < data.getFullSeq1().length() + 1; j++) {
+                int matchValue;
+                if (data.getFullSeq1().charAt(i - 1) == data.getFullSeq2().charAt(j - 1)) {
+                    matchValue = data.getMATCH();
+                } else {
+                    matchValue = data.getMISMATCH();
+                }
+                if (data.solution[i - 1][j].getValue() == null) {
+                    waitingRoom(i - 1, j);
+                }
+                int max = max(data.solution[i][j - 1].getValue() + data.getGAP(),
+                        data.solution[i - 1][j].getValue() + data.getGAP(),
+                        data.solution[i - 1][j - 1].getValue() + matchValue);
+
+                data.solution[i][j].setValue(max);
+                data.solution[i][j].release();
+            }
+        }
+    }
+
+    private void waitingRoom(int i, int j) {
+
+//        System.out.println(Thread.currentThread().getName() + " ativou o semaforo - indices: i= " + i + " j= " + j);
+        data.solution[i][j].await();
+
+    }
+
+    private int max(int a, int b, int c) {
+
+        return Math.max(Math.max(a, b), c);
+    }
 }

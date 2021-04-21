@@ -5,52 +5,69 @@ import java.util.List;
 
 public class ParallelService {
 
-	private final String fullSeq1;
-
-	private final String fullSeq2;
-
 	private final Integer numThreads;
 
-	public ParallelService(String fullSeq1, String fullSeq2, Integer numThreads) {
+	private final Data data;
 
-		this.fullSeq1 = fullSeq1;
-		this.fullSeq2 = fullSeq2;
+	private List<NeedlemanWunschThread> pool = new ArrayList();
+
+	public ParallelService(Integer numThreads, Data data) {
+
 		this.numThreads = numThreads;
+		this.data = data;
 	}
 
-	public List<NeedlemanWunschThread> initialize() {
-
-		StringBuilder name;
-		List<NeedlemanWunschThread> threads = new ArrayList<>();
-		int length = fullSeq1.length();
-		double threadSeqSize = length / numThreads;
-		int threadSeqRemainder = length % numThreads;
-		int counterSeqPre = 0;
-		int counterSeqPos = 0;
-		String subSeq1;
-		String subSeq2;
-
-		System.out.println("resto da divisao: " + threadSeqRemainder);
-		for (int i = 0; i <= numThreads; i++) {
-			name = new StringBuilder();
-			counterSeqPos += threadSeqSize;
-			if (counterSeqPos >= length) {
-				subSeq1 = (String) fullSeq1.subSequence(counterSeqPre, length);
-				subSeq2 = (String) fullSeq2.subSequence(counterSeqPre, length);
-				threads.add(new NeedlemanWunschThread(
-						name.append("thread_").append(i + 1).append("_index:_").append(counterSeqPre).toString(), subSeq1,
-						subSeq2));
-				break;
+	public int runParallel() {
+		for (int i = 0; i < data.solution.length; i++) {
+			for (int j = 0; j < data.solution.length; j++) {
+				data.solution[i][j] = new Cell();
 			}
-			subSeq1 = (String) fullSeq1.subSequence(counterSeqPre, counterSeqPos);
-			subSeq2 = (String) fullSeq2.subSequence(counterSeqPre, counterSeqPos);
-			threads.add(new NeedlemanWunschThread(
-					name.append("thread_").append(i + 1).append("_index:_").append(counterSeqPre).toString(), subSeq1,
-					subSeq2));
-			counterSeqPre += threadSeqSize;
 		}
 
-		return threads;
+		data.solution[0][0] = new Cell(0);
+
+		for (int i = 1; i < data.getFullSeq2().length() + 1; i++) {
+			data.solution[0][i] = new Cell(data.solution[0][i - 1].getValue() + data.getGAP());
+		}
+
+		for (int i = 1; i < data.getFullSeq1().length() + 1; i++) {
+			data.solution[i][0] = new Cell(data.solution[i - 1][0].getValue() + data.getGAP());
+		}
+
+		for (int i = 1; i <= numThreads; i++) {
+			pool.add(new NeedlemanWunschThread(String.valueOf(i), data));
+		}
+
+		List<List<Integer>> listOfIndexes = new ArrayList<>();
+
+		for (int i = 0; i<numThreads; i++){
+			List<Integer> indexes = new ArrayList<>();
+			for (int j=i+1; j< data.solution.length; j+=numThreads){
+				indexes.add(j);
+			}
+			listOfIndexes.add(indexes);
+		}
+
+		for (int i = 0; i < pool.size(); i++) {
+			pool.get(i).setI(listOfIndexes.get(i));
+		}
+
+		for (NeedlemanWunschThread td : pool) {
+			td.start();
+		}
+
+		synchronized (data.solution[data.solution.length - 1][data.solution[0].length - 1]) {
+
+			if (data.solution[data.solution.length - 1][data.solution[0].length - 1].getValue() == null) {
+				System.out.println("processando...");
+				try {
+					data.solution[data.solution.length - 1][data.solution[0].length - 1].wait();
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+		return data.solution[data.solution.length - 1][data.solution[0].length - 1].getValue();
 	}
+
 }
-//https://github.com/wdouglascosta/needleman-wunsch-parallel/blob/master/Main.java
