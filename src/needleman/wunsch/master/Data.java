@@ -1,5 +1,10 @@
 package needleman.wunsch.master;
 
+import java.util.concurrent.BrokenBarrierException;
+import java.util.concurrent.CyclicBarrier;
+
+import needleman.wunsch.utils.BarrierUpdater;
+
 public class Data {
 
 	private final String fullSeq1;
@@ -12,9 +17,15 @@ public class Data {
 
 	private final int GAP; // penalidade por lacuna
 
+	private int numThreads;
+
+
+
 	public Cell[][] solution;
 
-	public Data(String fullSeq1, String fullSeq2, int MATCH, int MISMATCH, int GAP) {
+	public CyclicBarrier barrier;
+
+	public Data(String fullSeq1, String fullSeq2, int numThreads, int MATCH, int MISMATCH, int GAP) {
 
 		this.fullSeq1 = fullSeq1;
 		this.fullSeq2 = fullSeq2;
@@ -22,6 +33,13 @@ public class Data {
 		this.MISMATCH = MISMATCH;
 		this.GAP = GAP;
 		this.solution = new Cell[fullSeq1.length() + 1][fullSeq2.length() + 1];
+		this.numThreads = numThreads;
+
+	}
+
+	public int getNumThreads() {
+
+		return numThreads;
 	}
 
 	public String getFullSeq1() {

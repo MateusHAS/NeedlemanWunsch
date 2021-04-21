@@ -18,9 +18,6 @@ public class ParallelService {
 	}
 
 	public int runParallel() {
-//		for (int i = 0; i < numThreads; i++){
-//			pool.add(new NeedlemanWunschThread());
-//		}
 		for (int i = 0; i < data.solution.length; i++) {
 			for (int j = 0; j < data.solution.length; j++) {
 				data.solution[i][j] = new Cell();
@@ -41,37 +38,37 @@ public class ParallelService {
 			pool.add(new NeedlemanWunschThread(String.valueOf(i), data));
 		}
 
-		List<Integer> indexes1 = new ArrayList<>();
-		indexes1.add(1);
-		indexes1.add(3);
-		indexes1.add(5);
-		indexes1.add(7);
-		indexes1.add(9);
-		List<Integer> indexes2 = new ArrayList<>();
-		indexes2.add(2);
-		indexes2.add(4);
-		indexes2.add(6);
-		indexes2.add(8);
-		indexes2.add(10);
+		int qtdIndexes = data.solution.length / numThreads;
+		List<List<Integer>> listOfIndexes = new ArrayList<>();
 
-		pool.get(0).setI(indexes1);
-		pool.get(1).setI(indexes2);
+		for (int i = 0; i<numThreads; i++){
+			List<Integer> indexes = new ArrayList<>();
+			for (int j=i+1; j< data.solution.length; j+=numThreads){
+				indexes.add(j);
+			}
+			listOfIndexes.add(indexes);
+		}
+
+		for (int i = 0; i < pool.size(); i++) {
+			pool.get(i).setI(listOfIndexes.get(i));
+		}
 
 		for (NeedlemanWunschThread td : pool) {
 			td.start();
 		}
-		// aqui a bruxaria come solta
-		System.out.println("fim das chamadas de start");
 
-		while (data.solution[data.solution.length - 1][data.solution[0].length - 1].getValue() == null) {
-			try {
-				Thread.sleep(1);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
+		synchronized (data.solution[data.solution.length - 1][data.solution[0].length - 1]) {
+
+			if (data.solution[data.solution.length - 1][data.solution[0].length - 1].getValue() == null) {
+				System.out.println("processando...");
+				try {
+					data.solution[data.solution.length - 1][data.solution[0].length - 1].wait();
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
 			}
 		}
 		return data.solution[data.solution.length - 1][data.solution[0].length - 1].getValue();
-
 	}
 
 }
