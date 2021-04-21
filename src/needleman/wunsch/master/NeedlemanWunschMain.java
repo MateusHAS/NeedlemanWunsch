@@ -29,7 +29,7 @@ public class NeedlemanWunschMain {
         String fileName2 = "seq2_MERS";
         String firstSeq;
         String secondSeq;
-        Integer limit = 2000;
+        Integer limit = 1000;
         boolean isParallel = true;
         int numThreads = 5;
 
@@ -66,7 +66,7 @@ public class NeedlemanWunschMain {
         } else {
             barrier = new CyclicBarrier(numThreads, new BarrierUpdater());
             validateInput(limit, numThreads);
-            Data data = new Data(firstSeq, secondSeq, numThreads, MATCH, MISMATCH, GAP);
+            Data data = new Data(firstSeq, secondSeq, MATCH, MISMATCH, GAP);
             ParallelService parallelService = new ParallelService(numThreads, data);
             long currentTimeStart = System.nanoTime();
             int score = parallelService.runParallel();

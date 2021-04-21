@@ -20,7 +20,6 @@ public class Cell {
 	public void release(){
 		semaphore.release();
 		synchronized (this){
-
 			this.notifyAll();
 		}
 	}

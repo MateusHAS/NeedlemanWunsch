@@ -38,7 +38,6 @@ public class ParallelService {
 			pool.add(new NeedlemanWunschThread(String.valueOf(i), data));
 		}
 
-		int qtdIndexes = data.solution.length / numThreads;
 		List<List<Integer>> listOfIndexes = new ArrayList<>();
 
 		for (int i = 0; i<numThreads; i++){

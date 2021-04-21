@@ -26,7 +26,7 @@ public class NeedlemanWunschThread extends Thread {
 
         for (Integer i : indexes) {
 
-            System.out.println(Thread.currentThread().getName() + " - index: " + i);
+//            System.out.println(Thread.currentThread().getName() + " - index: " + i);
 
             for (int j = 1; j < data.getFullSeq1().length() + 1; j++) {
                 int matchValue;
@@ -46,12 +46,11 @@ public class NeedlemanWunschThread extends Thread {
                 data.solution[i][j].release();
             }
         }
-        NeedlemanWunschMain.reachBarrier();
     }
 
     private void waitingRoom(int i, int j) {
 
-        System.out.println(Thread.currentThread().getName() + " está aguardando pelo objeto: i= " + i + " j= " + j);
+//        System.out.println(Thread.currentThread().getName() + " ativou o semaforo - indices: i= " + i + " j= " + j);
         data.solution[i][j].await();
 
     }
