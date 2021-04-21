@@ -5,7 +5,6 @@ import java.math.BigDecimal;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CyclicBarrier;
 
-import needleman.wunsch.utils.BarrierUpdater;
 import needleman.wunsch.utils.FileLoader;
 
 /**
@@ -25,58 +24,59 @@ public class NeedlemanWunschMain {
 
         FileLoader fileLoader = new FileLoader();
 
-        String fileName1 = "seq1_SARS-COV-2";
-        String fileName2 = "seq2_MERS";
+//        String fileName1 = "seq1_SARS-COV.data";
+//        String fileName2 = "seq2_MERS.data";
         String firstSeq;
         String secondSeq;
         Integer limit = 1000;
-        boolean isParallel = true;
-        int numThreads = 5;
+        int numThreads = 4;
 
         if (args.length > 0) {
+            System.out.println("Input limit size: " + args[0]);
             try {
-                fileName1 = args[0];
-                fileName2 = args[1];
-                limit = Integer.getInteger(args[2]);
-            } catch (Exception e) {
-                System.out.println("Erro de parâmetros!\n [arquivo1] [arquivo2] [limite de tamanho](opcional)");
+                limit = Integer.parseInt(args[0]);
+                numThreads = Integer.parseInt(args[1]);
+            } catch (IllegalArgumentException e) {
+                throw new IllegalArgumentException(
+                        "Erro de argumentos, o formato deve ser: [tamanhoDaEntrada] [numThreads]");
             }
+
         }
+        validateInput(limit, numThreads);
 
         if (limit != null && limit > 0) {
-            firstSeq = fileLoader.getSequence(fileName1).substring(0, limit);
-            secondSeq = fileLoader.getSequence(fileName2).substring(0, limit);
+            firstSeq = fileLoader.getSequence("Sequence A").substring(0, limit);
+            secondSeq = fileLoader.getSequence("Sequence B").substring(0, limit);
         } else {
-            firstSeq = fileLoader.getSequence(fileName1);
-            secondSeq = fileLoader.getSequence(fileName2);
+            firstSeq = fileLoader.getSequence("Sequence A");
+            secondSeq = fileLoader.getSequence("Sequence B");
         }
 
-        if (!isParallel) {
 
-            long currentTimeStart = System.nanoTime();
-            NeedlemanWunsch alinhamento = new NeedlemanWunsch(firstSeq, secondSeq, MATCH, MISMATCH, GAP, true);
-            long currentTimeEnd = System.nanoTime();
 
-            BigDecimal finalTime = BigDecimal.valueOf((currentTimeEnd - currentTimeStart) / 1000000.);
-            System.out.println("tempo de execução (ms): " + finalTime);
-            alinhamento.printStrandInfo();
+        //sequencial
+        System.out.println("------------------------------------------------");
+        System.out.println("Execução Sequencial:");
+        System.out.println("processando...");
+        long currentTimeStart = System.nanoTime();
+        NeedlemanWunsch alinhamento = new NeedlemanWunsch(firstSeq, secondSeq, MATCH, MISMATCH, GAP, true);
+        long currentTimeEnd = System.nanoTime();
 
-            System.out.println(" \n");
+        BigDecimal finalTime = BigDecimal.valueOf((currentTimeEnd - currentTimeStart) / 1000000.);
+        System.out.println("tempo de execução (ms): " + finalTime);
+        alinhamento.printStrandInfo();
+        System.out.println("Fim da execução sequencial:");
 
-        } else {
-            barrier = new CyclicBarrier(numThreads, new BarrierUpdater());
-            validateInput(limit, numThreads);
-            Data data = new Data(firstSeq, secondSeq, MATCH, MISMATCH, GAP);
-            ParallelService parallelService = new ParallelService(numThreads, data);
-            long currentTimeStart = System.nanoTime();
-            int score = parallelService.runParallel();
-            long currentTimeEnd = System.nanoTime();
+        //parallel
+        System.out.println("------------------------------------------------");
+        System.out.println("Execução Paralela:");
+        System.out.println("numThreads " + numThreads);
+        Data data = new Data(firstSeq, secondSeq, MATCH, MISMATCH, GAP);
+        ParallelService parallelService = new ParallelService(numThreads, data);
+        int score = parallelService.runParallel();
 
-            BigDecimal finalTime = BigDecimal.valueOf((currentTimeEnd - currentTimeStart) / 1000000.);
-            System.out.println("tempo de execução (ms): " + finalTime);
-            System.out.println("A pontuação para este alinhamento (paralelo) é: " + score);
-
-        }
+        System.out.println("A pontuação para este alinhamento (paralelo) é: " + score);
+        System.out.println("Fim da execução sequencial:");
 
     }
 
@@ -85,14 +85,13 @@ public class NeedlemanWunschMain {
         int resto = limit % numThreads;
         int sugestao = numThreads * (limit / numThreads);
         if (resto != 0) {
-
             throw new IllegalArgumentException(
                     "Entrada inválida, o tamanho da string de entrada deve ser um múltiplo do numero de threads, sugestão: "
                             + sugestao);
         }
     }
 
-    public static void reachBarrier(){
+    public static void reachBarrier() {
 
         try {
             barrier.await();

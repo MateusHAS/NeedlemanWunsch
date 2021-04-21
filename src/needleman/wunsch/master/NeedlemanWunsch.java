@@ -191,8 +191,8 @@ public class NeedlemanWunsch {
     }
 
     public void printStrandInfo() {
-        System.out.println(stringAlinhada[0]);         
-        System.out.println(stringAlinhada[1]);
+//        System.out.println(stringAlinhada[0]);
+//        System.out.println(stringAlinhada[1]);
         System.out.println("A pontuação para este alinhamento é: " + score);
     }
     

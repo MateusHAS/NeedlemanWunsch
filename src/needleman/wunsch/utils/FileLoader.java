@@ -1,24 +1,33 @@
 package needleman.wunsch.utils;
 
-import java.io.File;
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.IOException;
-import java.nio.file.Files;
+
+import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 public class FileLoader {
 
-    
-    public String getSequence(String filePath) throws IOException {
-    	
-        ClassLoader classLoader = getClass().getClassLoader();
+    public String getSequence(String sequenceName) throws IOException {
 
-        File file = new File(classLoader.getResource(filePath).getFile());
-         
-        //File is found
-        System.out.println("File Found : " + file.getName());
-         
-        //Read File Content
-        String content = new String(Files.readAllBytes(file.toPath()));
-        return content;
+        String absolutePath;
+        JFileChooser path = new JFileChooser();
+        path.setDialogTitle("Select " + sequenceName);
+        path.setFileFilter(new FileNameExtensionFilter(sequenceName + ".data", "data"));
+
+        if (path.showDialog(null, "Open") == JFileChooser.APPROVE_OPTION) {
+            absolutePath = path.getSelectedFile().toString().trim();
+        } else {
+            JOptionPane.showMessageDialog(null, "Invalid input!", "Fail", JOptionPane.ERROR_MESSAGE);
+            throw new IOException("Invalid path");
+        }
+
+        BufferedReader br = new BufferedReader(new FileReader(absolutePath));
+        String data = br.readLine();
+        return data;
+
     }
 
 }

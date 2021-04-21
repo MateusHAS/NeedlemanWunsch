@@ -20,13 +20,11 @@ public class Cell {
 	public void release(){
 		semaphore.release();
 		synchronized (this){
-			this.notifyAll();
+			this.notify();
 		}
 	}
 
-	public Cell() {
-
-	}
+	public Cell() {	}
 
 	public Cell(Integer value) {
 
