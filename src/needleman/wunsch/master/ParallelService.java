@@ -1,5 +1,6 @@
 package needleman.wunsch.master;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -51,7 +52,7 @@ public class ParallelService {
 		for (int i = 0; i < pool.size(); i++) {
 			pool.get(i).setI(listOfIndexes.get(i));
 		}
-
+		long currentTimeStart = System.nanoTime();
 		for (NeedlemanWunschThread td : pool) {
 			td.start();
 		}
@@ -67,6 +68,9 @@ public class ParallelService {
 				}
 			}
 		}
+		long currentTimeEnd = System.nanoTime();
+		BigDecimal finalTime = BigDecimal.valueOf((currentTimeEnd - currentTimeStart) / 1000000.);
+		System.out.println("tempo de execução (ms): " + finalTime);
 		return data.solution[data.solution.length - 1][data.solution[0].length - 1].getValue();
 	}
 
