@@ -76,7 +76,6 @@ public class NeedlemanWunschMain {
         int score = parallelService.runParallel();
 
         System.out.println("A pontuação para este alinhamento (paralelo) é: " + score);
-        System.out.println("Fim da execução sequencial:");
 
     }
 
